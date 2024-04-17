@@ -1,4 +1,3 @@
-# views.py
 from rest_framework import generics, status
 from rest_framework.response import Response
 from .models import User
@@ -9,17 +8,16 @@ import random
 class UserRegistration(generics.GenericAPIView):
     serializer_class = UserSerializer
 
-    def create(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         phone_number = serializer.validated_data['phone_number']
         otp = random.randint(100000, 999999)
         serializer.validated_data['otp'] = str(otp)
         user = serializer.save()
-        
-        send_otp_sms(phone_number, otp)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+        send_otp_sms(self,phone_number, str(otp))
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class OTPVerification(generics.GenericAPIView):
     serializer_class = OTPSerializer
